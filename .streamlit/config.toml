@@ -1,0 +1,60 @@
+[theme]
+base = "light"
+primaryColor = "#850122"
+backgroundColor = "#fff2ea"
+secondaryBackgroundColor = "#fff9f5"
+textColor = "#410002"
+font = "Noto Sans"
+headingFont = "Noto Sans"
+baseFontSize = 16
+baseFontWeight = 400
+metricValueFontSize = "28px"
+metricValueFontWeight = 650
+baseRadius = "large"
+buttonRadius = "medium"
+showWidgetBorder = true
+showSidebarBorder = true
+chartCategoricalColors = ["#850122", "#d0675d", "#d59a43", "#57745d", "#8d6b82", "#8e7770"]
+
+[[theme.fontFaces]]
+family = "Noto Sans"
+url = "app/static/fonts/NotoSans-Variable.woff2"
+weight = "100 900"
+style = "normal"
+
+[theme.light]
+primaryColor = "#850122"
+backgroundColor = "#fff2ea"
+secondaryBackgroundColor = "#fff9f5"
+textColor = "#410002"
+borderColor = "#e6d7ce"
+linkColor = "#850122"
+
+[theme.light.sidebar]
+backgroundColor = "#fff9f5"
+secondaryBackgroundColor = "#fff2ea"
+textColor = "#410002"
+borderColor = "#e6d7ce"
+primaryColor = "#850122"
+linkColor = "#850122"
+
+[theme.dark]
+primaryColor = "#f08a80"
+backgroundColor = "#171113"
+secondaryBackgroundColor = "#241b1e"
+textColor = "#f8efeb"
+borderColor = "#49383c"
+linkColor = "#f2a097"
+
+chartCategoricalColors = ["#f08a80", "#e5b15f", "#93b19a", "#c49ab7", "#d97858", "#d5c1b8"]
+
+[theme.dark.sidebar]
+backgroundColor = "#21181b"
+secondaryBackgroundColor = "#2a2023"
+textColor = "#f8efeb"
+borderColor = "#49383c"
+primaryColor = "#f08a80"
+linkColor = "#f2a097"
+
+[server]
+enableStaticServing = true

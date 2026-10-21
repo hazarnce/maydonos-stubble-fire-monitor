@@ -1,0 +1,15 @@
+streamlit>=1.57
+streamlit-folium>=0.25
+folium>=0.18
+pandas>=2.2,<4
+numpy>=1.26,<3
+requests>=2.32
+truststore>=0.10
+openmeteo-requests>=1.5
+requests-cache>=1.2
+retry-requests>=2.0
+cffdrs @ https://github.com/cffdrs/cffdrs_py/archive/refs/heads/main.zip
+Pillow>=10.0
+xgboost-cpu>=3.0,<4.0
+scikit-learn>=1.6,<2
+shapely>=2.0,<3

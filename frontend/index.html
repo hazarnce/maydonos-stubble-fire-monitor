@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff2ea">
+  <meta name="description" content="Türkiye il ve ilçe sınırları ile gerçek uydu termal gözlemleri.">
+  <title>MaydonOs · Saha görünümü</title>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="/assets/site.css?v=29">
+</head>
+<body>
+  <nav class="topbar" aria-label="Ana gezinme">
+    <a class="logo" href="/" aria-label="MaydonOs ana sayfa"><span aria-hidden="true">◆</span> MaydonOs</a>
+    <label class="sr-only" for="q">İl veya bildirim ara</label>
+    <input id="q" type="search" placeholder="⌕ İl veya bildirim ara" autocomplete="off">
+    <span id="live-status" class="live" role="status" aria-live="polite">İl seçin</span>
+    <button class="tab on" type="button" data-v="map">Harita</button>
+    <button class="tab" type="button" data-v="stat">İstatistikler</button>
+    <button class="tab" type="button" data-v="arc">Gözlem listesi</button>
+    <button class="tab" type="button" data-v="abt">Hakkında</button>
+  </nav>
+
+  <section class="bar" aria-label="Harita filtreleri">
+    <label for="province-select">İl</label>
+    <select id="province-select" aria-label="İl seçin"><option value="">İl seçin</option></select>
+    <label for="district-select">İlçe</label>
+    <select id="district-select" aria-label="İlçe seçin" disabled><option value="">Önce il seçin</option></select>
+    <button id="back-to-provinces" class="refresh-button secondary-button" type="button">Tüm iller</button>
+    <label for="imagery-date">Uydu görüntü günü</label>
+    <select id="imagery-date" aria-label="Bağımsız uydu görüntüsü tarihini seçin"></select>
+    <button id="nearby-button" class="refresh-button secondary-button" type="button" aria-label="Konum çevresindeki uydu sıcak noktalarını tara" title="Konum izni yalnızca bu düğmeye bastığınızda istenir.">⌖ Yakınımda</button>
+    <button id="refresh-button" class="refresh-button" type="button"><span aria-hidden="true">↻</span> Güncelle</button>
+  </section>
+  <div hidden aria-hidden="true">
+    <select id="ft"><option value="6">Son 6 saat</option><option value="24" selected>Son 24 saat</option><option value="48">Son 48 saat</option><option value="96">Son 4 gün</option></select>
+    <select id="fc"><option value="high">Yüksek</option><option value="hn">Yüksek + normal</option><option value="all" selected>Tümü</option></select>
+    <select id="fl"><option value="all">Tüm türler</option><option value="t">Tarım</option><option value="o">Orman / doğal</option><option value="s">Yapı / sanayi</option></select>
+    <select id="fs"><option value="all">Tüm uydular</option><option value="N">S-NPP</option><option value="1">NOAA-20</option><option value="2">NOAA-21</option><option value="A">MODIS</option><option value="T">MODIS Terra</option></select>
+    <input type="checkbox" id="lf">
+  </div>
+
+  <main>
+    <section id="v-map" class="view">
+      <div class="main">
+        <div class="mapw">
+          <div id="map" role="application" aria-label="Türkiye il ve ilçe sınırları, NASA FIRMS ve bağımsız uydu görüntü katmanları"></div>
+          <div class="stats" id="stats" aria-live="polite"></div>
+          <div class="map-caption"><span>Yakınlaştırmak için tekerlek veya +/− · sıcak noktaya tıklayınca yakınlaşır</span><span>İdari sınırlar: © OpenStreetMap contributors</span><span id="boundary-status">İller yükleniyor…</span><span id="imagery-status">NASA görüntüleri kapalı · katmanlar bağımsız</span><span id="eumetsat-status">EUMETSAT görüntüsü kapalı</span></div>
+        </div>
+        <aside class="side" aria-label="Sıcak nokta bildirimleri">
+          <div class="side-heading"><h2>Son tespitler</h2><span id="count" class="count">0</span></div>
+          <p id="firms-status" class="source-status">NASA FIRMS bağlantısı bekleniyor.</p>
+          <div id="period-summary" class="period-summary" aria-live="polite">Seçilen zaman aralığının günlük dağılımı bekleniyor.</div>
+          <p id="weather-status" class="source-status">Hava durumu bağlantısı bekleniyor.</p>
+          <p id="analysis-status" class="source-status">Model ve tarihsel kümelenme durumu bekleniyor.</p>
+          <section id="nearby-panel" class="nearby-panel" hidden aria-live="polite"></section>
+          <div id="list" class="alert-list"><p class="loading-line">Veriler alınıyor…</p></div>
+          <div id="det" class="detail" hidden></div>
+          <p class="disclaimer">Uydu termal bildirimi yangın veya anız yakımının doğrulanması değildir. Saha incelemesi gerekir.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="v-stat" class="page view" hidden>
+      <div class="page-title"><p class="eyebrow">TÜRKİYE GENELİ · GÜNCEL SORGU</p><h1>Gözlem özeti</h1><p>Harita açıldığında son uydu kayıtları Türkiye genelinde görünür. İl veya ilçe seçimi sonuçları daraltır.</p></div>
+      <div id="stats-content" class="stats-content"><p class="empty-note">Özet hazırlanıyor…</p></div>
+    </section>
+
+    <section id="v-arc" class="page view" hidden>
+      <div class="page-title"><p class="eyebrow">NASA FIRMS · HAM GÖZLEMLER</p><h1>Gözlem listesi</h1><p>Yalnızca API’den gelen gerçek uydu kayıtları gösterilir. Bu sayfa kalıcı olay arşivi tutmaz.</p></div>
+      <div id="archive-content" class="table-wrap"><p class="empty-note">Gözlem listesi bekleniyor…</p></div>
+    </section>
+
+    <section id="v-abt" class="page view" hidden>
+      <div class="page-title"><p class="eyebrow">MAYDONOS · TÜRKİYE</p><h1>Harita ve göstergeler hakkında</h1></div>
+      <div class="about-grid">
+        <article class="info-card"><h2>Nasıl çalışır?</h2><p>NASA FIRMS’in termal piksel bildirimleri haritada ayrı gözlemler olarak gösterilir. Seçili ilçe için Open-Meteo hava serisinden CFFDRS FFMC hava-tutuşabilirlik göstergesi hesaplanır. CORINE arazi bilgisi, uydu ölçümleri, tarihsel kümelenme ve hasat dönemi tek başına olay nedenini kanıtlamaz.</p><p>Türkiye FIRMS arşivindeki bölgesel hububat hasat pencerelerinde kalan kayıtlarla eğitilmiş model, yeterli veri bulunan ilçe görünümünde noktaları göreli sıraya koyar. İl/bölge ve hasat dönemindeki ilerleme modele girdi olur; sezon dışında veya gerekli hava, CORINE ve geçmiş verileri eksikse sıra gösterilmez. İlçe merkezinin hava verisi seçilen ilçedeki noktalara uygulanır. Hedef FIRMS termal nokta vekilidir; anız yakımını, yangın olasılığını veya saha doğrulamasını göstermez.</p></article>
+        <article class="info-card harvest-calendar-card"><h2>Bölgesel hububat hasat izleme takvimi</h2><p>Bu yaklaşık pencereler buğday ve kışlık hububatın izlenmesi içindir; her ürünün, ilçenin ve yılın gerçek hasat günü değildir. Bölge ve sezon içi ilerleme eğitim verisine eklenir ve canlı model sıralamasını etkiler.</p><div id="harvest-calendar"><p class="empty-note">Bölgesel takvim yükleniyor…</p></div><p class="history-note">Takvim kaynakları: <a href="https://arastirma.tarimorman.gov.tr/ttae/Sayfalar/Detay.aspx?SayfaId=47" target="_blank" rel="noopener">Tarım ve Orman Bakanlığı araştırma enstitüsü · ulusal hasat sırası</a> · <a href="https://www.gtb.org.tr/dosya/pdf/2016-yili-hububat-raporu.pdf" target="_blank" rel="noopener">TMO · bölgesel hasat başlangıçları</a> · <a href="https://istatistik.tarimorman.gov.tr/Sayfa/Detay/2089" target="_blank" rel="noopener">Bakanlık · 2025 fenolojik gözlemler</a>.</p></article>
+        <article class="info-card"><h2>Sensörsüz izleme ve kapsam</h2><p>Prototip, tarlaya veya ormana özel donanım kurmadan açık uydu ve hava verilerini kullanır. Türkiye geneli görünüm FIRMS kayıtlarını gösterir; tek bir merkez hava ölçümünü bütün ülkeye yaymaz. FFMC ve hava girdili model sıralaması şimdilik yalnızca ilçe seçildiğinde ve gerekli veriler eşleştiğinde sunulur.</p><p>Uydu geçişleri sürekli değildir; bulut, çözünürlük ve servis gecikmesi bazı olayların görünmesini engelleyebilir. Bu sistem 7/24 gözlem garantisi veya resmî erken uyarı hizmeti değildir.</p></article>
+        <article class="info-card"><h2>Harita sınırları</h2><p>Türkiye’nin 81 il ve ilçe sınırları, OpenStreetMap kaynaklı geoBoundaries verisinden alınmıştır. Açılışta FIRMS noktaları Türkiye genelinde gösterilir. İl seçimi noktaları il sınırına, ilçe seçimi ise ilçe poligonuna göre süzer.</p><p>İl ve ilçe sınırları ilgili CC BY-SA 2.0 ve ODbL lisans koşullarına tabidir. Kaynak: © OpenStreetMap contributors · geoBoundaries. Ana harita OpenStreetMap’tir; arazi bağlamı incelemesi için Esri World Imagery sunucu tarafında kullanılmaya devam eder.</p></article>
+        <article class="info-card"><h2>Gözlemler</h2><p>NASA FIRMS VIIRS ve MODIS sensörlerinin sıcak piksel bildirimlerini sağlar. Birden fazla geçişteki kayıtlar ölçüm geçmişi olarak gösterilebilir; uydu geçişleri arasında saatlik değer uydurulmaz.</p><p>FRP piksel içindeki ateş ışınım gücüdür; yanmış alanı veya yangın şiddetini tek başına vermez.</p></article>
+        <article class="info-card"><h2>Saha kontrolü puanı</h2><p>0–100 puan; FIRMS güven sınıfı, FRP ve TI4 termal parlaklığından hesaplanan sıralama göstergesidir. Yangın olasılığı veya resmi alarm değildir. Eksik ölçümlerde mevcut bileşenlerin ağırlığı yeniden ölçeklenir.</p></article>
+        <article class="info-card"><h2>Yakın çevre taraması</h2><p>Konum izni yalnızca kullanıcı “Yakınımda” düğmesine bastığında istenir. 10, 25 ve 50 km mesafelerdeki NASA FIRMS sıcak piksel kayıtları listelenir. Bunlar resmi yangın kaydı veya güvenlik mesafesi değildir. Türkiye için resmi olay ve yangın çevre sınırı katmanı bu prototipe bağlı değildir.</p></article>
+        <article class="info-card"><h2>Bağımsız uydu katmanları</h2><p>NASA FIRMS noktaları termal uydu gözlemleridir. NASA VIIRS gerçek renk görüntüsü, OMPS aerosol indeksi ve EUMETSAT MTG GeoColour katmanları haritada ayrı ayrı açılıp kapatılabilir; FIRMS ile otomatik eşleştirilmez.</p><p>GeoColour yaklaşık 10 dakikalık MTG görüntü döngüsünü izler; servise ulaşma gecikmesi değişebilir. Gerçek renk görüntüsünde duman, bulut ve toz birbirine karışabilir. Aerosol indeksi dumanı tek başına tanımlamaz. Katmanlar görsel bağlam sunar; bir duman izinin hangi FIRMS noktasından kaynaklandığını sistem söylemez. NASA görüntü tarihi kullanıcı tarafından seçilir.</p></article>
+        <article class="info-card"><h2>Veri kaynakları</h2><ul><li>NASA FIRMS: uydu termal gözlemleri</li><li>NASA GIBS: VIIRS gerçek renk ve OMPS aerosol görüntüleri</li><li>EUMETSAT MTG: GeoColour uydu görüntüsü</li><li>Open-Meteo: hava durumu</li><li>Copernicus CORINE 2018: arazi bağlamı</li><li>OpenStreetMap: idari ilçe sınırları</li><li>CFFDRS: hava temelli FFMC göstergesi</li></ul></article>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>MaydonOs · Açık veriyle saha görünümü</span><span>Kaynak: NASA FIRMS · OpenStreetMap · Copernicus · Open-Meteo</span></footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="/assets/site.js?v=46" defer></script>
+</body>
+</html>
